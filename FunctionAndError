@@ -1,26 +1,57 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.0;
 
-contract Llanes {
-    uint256 public value;
-
-    // Function to set a new value if it's between 200 and 3000
-    function setValue(uint256 _newValue) external {
-        require(_newValue >= 200 && _newValue <= 3000, "Value must be between 200 and 3000");
-        value = _newValue;
+contract LlanesStore {
+    struct Item {
+        string name;
+        uint price;
+        uint stock;
     }
 
-    // Function to assert that a given number is even
-    function assertValue(uint256 _num) external pure returns (uint256) {
-        assert(_num % 2 == 0);
-        return _num;
+    mapping(uint => Item) public inventory;
+    uint public totalSales;
+    address public owner;
+
+    event ItemAdded(uint itemId, string name, uint price, uint stock);
+    event ItemPurchased(uint itemId, uint quantity, uint totalCost);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
     }
 
-    // Function to revert if the given number is not a multiple of 5
-    function revertValue(uint256 _num) external pure returns (uint256) {
-        if (_num % 5 != 0) {
-            revert("Value must be a multiple of 5");
-        }
-        return _num;
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function addItem(uint itemId, string memory name, uint price, uint stock) public onlyOwner {
+        require(price > 0, "Price must be greater than zero");
+        require(stock > 0, "Stock must be greater than zero");
+
+        inventory[itemId] = Item(name, price, stock);
+        emit ItemAdded(itemId, name, price, stock);
+    }
+
+    function purchaseItem(uint itemId, uint quantity) public payable {
+        Item storage item = inventory[itemId];
+        require(item.price > 0, "Item does not exist");
+        require(item.stock >= quantity, "Not enough stock available");
+        uint totalCost = item.price * quantity;
+        require(msg.value == totalCost, "Incorrect amount of Ether sent");
+
+        item.stock -= quantity;
+        totalSales += totalCost;
+        emit ItemPurchased(itemId, quantity, totalCost);
+    }
+
+    function checkStock(uint itemId) public view returns (uint) {
+        Item storage item = inventory[itemId];
+        require(item.price > 0, "Item does not exist");
+        return item.stock;
+    }
+
+    function getTotalSales() public view returns (uint) {
+        return totalSales;
     }
 }
+
