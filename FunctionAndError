@@ -1,57 +1,40 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity >=0.7.0 <0.9.0;
 
-contract LlanesStore {
-    struct Item {
-        string name;
-        uint price;
-        uint stock;
-    }
+contract GreatestNumber {
 
-    mapping(uint => Item) public inventory;
-    uint public totalSales;
+    uint public number1;
+    uint public number2;
+    uint public number3;
+    uint public number4;
     address public owner;
-
-    event ItemAdded(uint itemId, string name, uint price, uint stock);
-    event ItemPurchased(uint itemId, uint quantity, uint totalCost);
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can perform this action");
-        _;
-    }
 
     constructor() {
         owner = msg.sender;
     }
 
-    function addItem(uint itemId, string memory name, uint price, uint stock) public onlyOwner {
-        require(price > 0, "Price must be greater than zero");
-        require(stock > 0, "Stock must be greater than zero");
-
-        inventory[itemId] = Item(name, price, stock);
-        emit ItemAdded(itemId, name, price, stock);
+    modifier onlyOwner { 
+        require(owner == msg.sender, "Only the contract owner can access this function");
+        _;
     }
 
-    function purchaseItem(uint itemId, uint quantity) public payable {
-        Item storage item = inventory[itemId];
-        require(item.price > 0, "Item does not exist");
-        require(item.stock >= quantity, "Not enough stock available");
-        uint totalCost = item.price * quantity;
-        require(msg.value == totalCost, "Incorrect amount of Ether sent");
-
-        item.stock -= quantity;
-        totalSales += totalCost;
-        emit ItemPurchased(itemId, quantity, totalCost);
+    function setNumbers(uint _number1, uint _number2, uint _number3, uint _number4) public onlyOwner {
+        number1 = _number1;
+        number2 = _number2;
+        number3 = _number3;
+        number4 = _number4;
     }
 
-    function checkStock(uint itemId) public view returns (uint) {
-        Item storage item = inventory[itemId];
-        require(item.price > 0, "Item does not exist");
-        return item.stock;
-    }
-
-    function getTotalSales() public view returns (uint) {
-        return totalSales;
+    function getGreatestNumber() public view onlyOwner returns(uint) {
+        if (number1 > number2 && number1 > number3 && number1 > number4) {
+            return number1;
+        } else if (number2 > number1 && number2 > number3 && number2 > number4) {
+            return number2;
+        } else if (number3 > number1 && number3 > number2 && number3 > number4) {
+            return number3;
+        } else {
+            return number4;
+        }
     }
 }
+
 
