@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
 contract GreatestNumber {
@@ -17,24 +18,43 @@ contract GreatestNumber {
         _;
     }
 
+    // Function to set the numbers with error handling for zero values
     function setNumbers(uint _number1, uint _number2, uint _number3, uint _number4) public onlyOwner {
+        require(_number1 > 0, "Number1 must be greater than zero");
+        require(_number2 > 0, "Number2 must be greater than zero");
+        require(_number3 > 0, "Number3 must be greater than zero");
+        require(_number4 > 0, "Number4 must be greater than zero");
+        
         number1 = _number1;
         number2 = _number2;
         number3 = _number3;
         number4 = _number4;
     }
 
+    // Function to get the greatest number with a revert example
     function getGreatestNumber() public view onlyOwner returns(uint) {
-        if (number1 > number2 && number1 > number3 && number1 > number4) {
-            return number1;
-        } else if (number2 > number1 && number2 > number3 && number2 > number4) {
-            return number2;
-        } else if (number3 > number1 && number3 > number2 && number3 > number4) {
-            return number3;
-        } else {
-            return number4;
+        uint greatest = number1;
+
+        if (number2 > greatest) {
+            greatest = number2;
         }
+        if (number3 > greatest) {
+            greatest = number3;
+        }
+        if (number4 > greatest) {
+            greatest = number4;
+        }
+
+        // Revert if no greatest number found (shouldn't happen in this logic, just for demonstration)
+        require(greatest > 0, "No valid greatest number found");
+
+        return greatest;
+    }
+
+    // Function to demonstrate an assert statement
+    function checkGreaterThanZero(uint _number) public pure returns(bool) {
+        assert(_number > 0); // This will throw an error if _number is not greater than zero
+        return true;
     }
 }
-
 
