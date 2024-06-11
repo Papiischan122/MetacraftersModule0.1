@@ -46,7 +46,9 @@ contract GreatestNumber {
         }
 
         // Revert if no greatest number found (shouldn't happen in this logic, just for demonstration)
-        require(greatest > 0, "No valid greatest number found");
+        if (greatest == 0) {
+            revert("No valid greatest number found");
+        }
 
         return greatest;
     }
@@ -56,5 +58,20 @@ contract GreatestNumber {
         assert(_number > 0); // This will throw an error if _number is not greater than zero
         return true;
     }
+
+    // Additional function to demonstrate revert explicitly
+    function resetNumbers() public onlyOwner {
+        // Check if numbers are already zero
+        if (number1 == 0 && number2 == 0 && number3 == 0 && number4 == 0) {
+            revert("All numbers are already zero");
+        }
+
+        number1 = 0;
+        number2 = 0;
+        number3 = 0;
+        number4 = 0;
+    }
 }
+
+      
 
